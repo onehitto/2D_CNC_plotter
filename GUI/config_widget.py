@@ -1,10 +1,11 @@
 #from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QTextEdit, QPushButton,QHBoxLayout,QLineEdit,QSplitter,QGridLayout,QSizePolicy
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
 import json
-import sys
+import os
 
 class configmotor_widget(QWidget):
+    emitconf = pyqtSignal(str)
     def __init__(self):
         super().__init__()
         
@@ -24,8 +25,11 @@ class configmotor_widget(QWidget):
         self.smconfigcomboBox = QComboBox()
         
         # options 
-        self.smconfigcomboBox.addItem("Option 1")
-        self.smconfigcomboBox.addItem("Option 2")
+        self.smconfigcomboBox.addItem("Full Step 1/1")
+        self.smconfigcomboBox.addItem("Half Step 1/2")
+        self.smconfigcomboBox.addItem("Quarter Step 1/4")
+        self.smconfigcomboBox.addItem("Eighth Step 1/8")
+        self.smconfigcomboBox.addItem("Sixteenth Step 1/16")
         # layout 
         self.Vlayout.addWidget(self.smconfigLabel)
         self.Vlayout.addWidget(self.smconfigcomboBox)
@@ -37,6 +41,7 @@ class configmotor_widget(QWidget):
         # options 
         self.sensorconfigcomboBox.addItem("Option 1")
         self.sensorconfigcomboBox.addItem("Option 2")
+        self.sensorconfigcomboBox.setEnabled(False)
         # layout 
         self.Vlayout.addWidget(self.sensorconfigLabel)
         self.Vlayout.addWidget(self.sensorconfigcomboBox)
@@ -50,13 +55,14 @@ class configmotor_widget(QWidget):
         # options 
         self.speedconfigcomboBox.addItem("Option 1")
         self.speedconfigcomboBox.addItem("Option 2")
+        self.speedconfigcomboBox.setEnabled(False)
         # layout 
         self.Vlayout.addWidget(self.speedconfiglabel)
         self.Vlayout.addWidget(self.speedconfigcomboBox)
         
         #push button apply
         self.applybtn = QPushButton('Apply')
-        self.applybtn.clicked.connect(self.saveSettings)
+        self.applybtn.clicked.connect(self.applyevent)
         
         self.layout.addLayout(self.Vlayout)
         
@@ -66,13 +72,30 @@ class configmotor_widget(QWidget):
         self.setLayout(self.layout)
         
         
-    def saveSettings(self):
+    def applyevent(self):
+        index = self.smconfigcomboBox.currentIndex()
+        if index == 0:
+            conf = '000'
+        elif index == 1:
+            conf = '001'
+        elif index == 2:
+            conf = '010'
+        elif index == 3:
+            conf = '110'
+        elif index == 4:
+            conf = '111'
+        self.emitconf.emit(conf)
+        
+    def saveSettings(self):        
+        
         settings = {
             "step_motor_config": self.smconfigcomboBox.currentIndex(),
             "sensor_config": self.sensorconfigcomboBox.currentIndex(),
             "motor_speed": self.speedconfigcomboBox.currentIndex(),
         }
-
+        cache_dir = os.path.dirname(self.settingsFile)
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
         with open(self.settingsFile, 'w') as file:
             json.dump(settings, file)
             

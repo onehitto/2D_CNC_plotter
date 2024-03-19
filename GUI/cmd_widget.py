@@ -1,8 +1,11 @@
 #from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QTextEdit, QPushButton,QHBoxLayout,QLineEdit,QSplitter,QGridLayout,QSizePolicy
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 
 class Cmd_widget(QWidget):
+    
+    btn_signal = pyqtSignal(str,int)
+    
     def __init__(self,name):
         super().__init__()
         
@@ -43,6 +46,27 @@ class Cmd_widget(QWidget):
         self.layout.addLayout(self.cmdlayout)
         
         self.setLayout(self.layout)
+        
+        self.leftbtn1.clicked.connect(lambda: self.cmd_event('l', 1))
+        self.leftbtn2.clicked.connect(lambda: self.cmd_event('l', 10))
+        self.leftbtn3.clicked.connect(lambda: self.cmd_event('l', 100))
+        self.rightbtn1.clicked.connect(lambda: self.cmd_event('r', 1))
+        self.rightbtn2.clicked.connect(lambda: self.cmd_event('r', 10))
+        self.rightbtn3.clicked.connect(lambda: self.cmd_event('r', 100))
+        
+        self.cmd_state(False)
+    
+    def cmd_event(self,dir,step):
+        self.btn_signal.emit(dir,step)
+        
+    def cmd_state(self,value):
+        self.leftbtn1.setEnabled(value)
+        self.leftbtn2.setEnabled(value)
+        self.leftbtn3.setEnabled(value)
+        self.rightbtn1.setEnabled(value)
+        self.rightbtn2.setEnabled(value)
+        self.rightbtn3. setEnabled(value)
+        
         
 
 class Cmd_widgetlight(QWidget):
@@ -113,6 +137,9 @@ class CmdGcode_widget(QWidget):
         
         
         self.setLayout(self.layout)
+        
+        #properties
+        self.sendbtn.setEnabled(False)
         
 if __name__ == "__main__":
     app = QApplication([])
