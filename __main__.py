@@ -70,6 +70,7 @@ class Gui_2D(QWidget):
         
         #Disable tab in init wait the connect event to enable it
         self.tabWidget.setTabEnabled(1, False)
+        
 
     def tab_1(self):
         

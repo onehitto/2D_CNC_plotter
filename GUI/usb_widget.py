@@ -17,19 +17,23 @@ class usb_widget(QGroupBox):
         #clear / connect btn 
         self.usbInfoHLayout = QHBoxLayout()
         self.clearbtn = QPushButton('Clear')
+        self.Refreshbtn = QPushButton('Refresh')
+        
         self.connectbtn = QPushButton('Connect')
-        ports = serial.tools.list_ports.comports()
         self.dropbox = QComboBox()
+        ports = serial.tools.list_ports.comports()
         for port, desc, hwid in sorted(ports):
                 self.dropbox.addItem(f"{port}: {desc} [{hwid}]")
         
         
         self.usbInfoHLayout.addWidget(self.clearbtn)
+        self.usbInfoHLayout.addWidget(self.Refreshbtn)
         self.usbInfoHLayout.addStretch(1)
         self.usbInfoHLayout.addWidget(self.dropbox)
         self.usbInfoHLayout.addWidget(self.connectbtn)
         
-
+        self.clearbtn.setFixedSize(50,23)
+        self.Refreshbtn.setFixedSize(50,23)
         # Communication widget for displaying incoming and outgoing messages
         self.commValue = QTextEdit()
         self.commValue.setReadOnly(True)
@@ -47,14 +51,11 @@ class usb_widget(QGroupBox):
         self.dropbox.activated[str].connect(self.on_combobox_activated)
         self.clearbtn.clicked.connect(self.clear_event)
         self.connectbtn.clicked.connect(self.connect_com)
-        
+        self.Refreshbtn.clicked.connect(self.get_com_ports)
         
         #timers
         self.timer = QTimer()
         self.timer.timeout.connect(self.getinfo) # Connect timeout signal to timerFunction
-        
-        
-        
         
      
     def connect_com(self):
@@ -106,7 +107,12 @@ class usb_widget(QGroupBox):
             self.Qdiag = SimpleDialog("COM Port not found.")
             self.Qdiag.setFixedSize(170, 80)
             self.Qdiag.show()
-            
+    
+    def get_com_ports(self):
+        self.dropbox.clear()
+        ports = serial.tools.list_ports.comports()
+        for port, desc, hwid in sorted(ports):
+                self.dropbox.addItem(f"{port}: {desc} [{hwid}]")     
         
     def append_colored_text(self, text, color):
         cursor = self.commValue.textCursor()
